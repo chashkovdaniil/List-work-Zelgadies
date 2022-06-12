@@ -20,22 +20,38 @@ class _HomeState extends State<Home> {
   int? selectedId;
   final textController = TextEditingController();
 
+  
+  // Вызов метода initState здесь лишен смысла, так как тело метода пустое
   @override
   void initState() {
     super.initState();
 
   }
-
+  
+  // Так как используется TextEditingController лучше переопределить метод dispose
+  // Внутри него вызвать textController.dispose();
+  // Это нужно для того, чтобы когда мы ушли с текущей страницы контроллер не остался в памяти устройства
+  // Чтобы не было захламления
+  //
+  // Вот так:
+  // @override
+  // dispose() {
+  //    textController.dispose();
+  //    super.dispose();
+  // }
+  
+  // Методы, которые не относятся к жизненному циклу виджета лучше писать после метода build
   void _menuOpen(){
     Navigator.of(context).push(
       MaterialPageRoute(builder: (BuildContext context) {
+        // Этот Scaffold можно выделить в отдельный виджет, это позволит минимизировать код в этом файле и улучшить читабельность
         return Scaffold(
           appBar: AppBar(title: Text('Меню')),
           body: Row (
             children: [
               ElevatedButton(
                   onPressed:  (){
-                    Navigator.pop(context);
+                    Navigator.pop(context); // Это можно не вызывать, так как ниже код, который и так закрывает все страницы и открывает новую
                     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
               },
                   child: Text('На главную страницу')
@@ -56,8 +72,8 @@ class _HomeState extends State<Home> {
       backgroundColor: Colors.green, //фон основного окна
       appBar: AppBar(
         title: Text('Список дел'),
-        centerTitle: true, //центрация названия
-        actions: [ //класс в который можно передать виджеты
+        centerTitle: true, // центрация названия
+        actions: [ // класс в который можно передать виджеты
           IconButton(
               onPressed: _menuOpen,
               icon: Icon(Icons.menu_outlined),
@@ -72,6 +88,15 @@ class _HomeState extends State<Home> {
               if (!snapshot.hasData) {
                 return Center(child: Text('Loading...'));
               }
+              // Здесь можно написать что-то вроде
+              // if (snapshot.data!.isEmpty) {
+              //    return Center(
+              //      child: Text('пустой лист'),
+              //     );
+              //  }
+              // return ListView(
+              //    ...
+              // Это сделаем код более красивым
               return snapshot.data!.isEmpty
                   ? Center(child: Text('пустой лист'))
                   :ListView(
@@ -92,6 +117,7 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white,
+        // Здесь можно выделить код ниже в отдельный метод, структура будет лучше смотреться
         onPressed: (){
           showDialog(context: context, builder: (BuildContext context){
             return AlertDialog( //какое конкретно окно мы хотим чтобы показывалось
@@ -128,6 +154,7 @@ class _HomeState extends State<Home> {
   }
 }
 
+// Создание отдельной модели - очень хорошо)
 class Grocery {   //создание базы данных
   final int? id;
   final String name;
@@ -147,6 +174,7 @@ class Grocery {   //создание базы данных
   }
 }
 
+// Создание отдельного класса для управления базой - очень хорошо!)
 class DatabaseHelper {
   DatabaseHelper._privateConstructor();
 
@@ -167,7 +195,7 @@ class DatabaseHelper {
   }
 
   FutureOr<void> onCreate(Database db, int version) async {
-    await db.execute(''''
+    await db.execute('''
     CREATE TABLE groceries(
     id INTEGER PRIMARY KEY,
     name TEXT
