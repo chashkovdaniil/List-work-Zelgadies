@@ -10,7 +10,7 @@ void main() {
     ),
     initialRoute: '/', //вызов класса для основной страницы (Только не класса, а открытие экрана по определенному пути)
     routes: {
-      '/': (context) => HomeHome(),
+      '/': (context) => HomeHome(), // Лучше дать имя HomePage или HomeScreen
       '/todo': (context) => Home(), // Лучше давать содержательные имена классам, здесь бы хорошо подошло ToDoPage или ToDoScreen
     },
   ));
